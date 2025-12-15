@@ -1,0 +1,8 @@
+{
+  "name": "react-router-template",
+  "installCommand": "npm install",
+  "assets": {
+    "directory": "./build/client",
+    "notFoundStrategy": "singlePageApplication"
+  }
+}
