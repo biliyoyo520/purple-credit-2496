@@ -24,7 +24,27 @@ interface FileInfo {
 }
 
 export async function loader() {
-  const resourcesPath = path.join(process.cwd(), 'public', 'resources');
+  const possiblePaths = [
+    path.join(process.cwd(), 'public', 'resources'),
+    path.join(process.cwd(), 'build', 'client', 'resources'),
+    path.join(process.cwd(), 'client', 'resources'),
+  ];
+
+  let resourcesPath: string | undefined;
+  for (const p of possiblePaths) {
+    try {
+      await fs.access(p);
+      resourcesPath = p;
+      break;
+    } catch {
+      continue;
+    }
+  }
+
+  if (!resourcesPath) {
+    console.error("Resources directory not found. Searched in:", possiblePaths);
+    return { files: [] };
+  }
   
   try {
     const files = await fs.readdir(resourcesPath);
