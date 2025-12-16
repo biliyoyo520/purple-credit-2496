@@ -25,9 +25,9 @@ interface FileInfo {
 
 export async function loader() {
   const possiblePaths = [
-    path.join(process.cwd(), 'public', 'resources'),
-    path.join(process.cwd(), 'build', 'client', 'resources'),
-    path.join(process.cwd(), 'client', 'resources'),
+    path.join(process.cwd(), 'public', 'files'),
+    path.join(process.cwd(), 'build', 'client', 'files'),
+    path.join(process.cwd(), 'client', 'files'),
   ];
 
   let resourcesPath: string | undefined;
@@ -103,7 +103,7 @@ export default function Home() {
                 <ListItem disablePadding>
                   <ListItemButton
                     component="a"
-                    href={`/resources/${file.name}`}
+                    href={`/files/${file.name}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
