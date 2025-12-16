@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useLoaderData } from 'react-router';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { useLoaderData, useRouteError, isRouteErrorResponse } from 'react-router';
+// import fs from 'node:fs/promises'; // Removed fs usage
+// import path from 'node:path'; // Removed path usage
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -23,49 +23,23 @@ interface FileInfo {
   mtime: string;
 }
 
-export async function loader() {
-  const possiblePaths = [
-    path.join(process.cwd(), 'public', 'files'),
-    path.join(process.cwd(), 'build', 'client', 'files'),
-    path.join(process.cwd(), 'client', 'files'),
-  ];
-
-  let resourcesPath: string | undefined;
-  for (const p of possiblePaths) {
-    try {
-      await fs.access(p);
-      resourcesPath = p;
-      break;
-    } catch {
-      continue;
-    }
-  }
-
-  if (!resourcesPath) {
-    console.error("Resources directory not found. Searched in:", possiblePaths);
-    return { files: [] };
-  }
-  
+export async function clientLoader() {
   try {
-    const files = await fs.readdir(resourcesPath);
-    const fileInfos: FileInfo[] = [];
-
-    for (const file of files) {
-      const filePath = path.join(resourcesPath, file);
-      const stats = await fs.stat(filePath);
-      fileInfos.push({
-        name: file,
-        isDirectory: stats.isDirectory(),
-        size: stats.size,
-        mtime: stats.mtime.toISOString(),
-      });
+    const response = await fetch('/files.json');
+    if (!response.ok) {
+      throw new Error('Failed to fetch file list');
     }
-
-    return { files: fileInfos };
+    const files: FileInfo[] = await response.json();
+    return { files };
   } catch (error) {
-    console.error("Error reading resources directory:", error);
+    console.error("Error fetching file list:", error);
     return { files: [] };
   }
+}
+
+// HydrateFallback is rendered while the client loader is running
+export function HydrateFallback() {
+  return <div>Loading...</div>;
 }
 
 function formatBytes(bytes: number, decimals = 2) {
@@ -78,7 +52,7 @@ function formatBytes(bytes: number, decimals = 2) {
 }
 
 export default function Home() {
-  const { files } = useLoaderData<typeof loader>();
+  const { files } = useLoaderData<typeof clientLoader>();
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -87,7 +61,7 @@ export default function Home() {
           Resource Repository
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
-          Index of /resources
+          Index of /files
         </Typography>
       </Box>
 
@@ -136,4 +110,5 @@ export default function Home() {
     </Container>
   );
 }
+
 
