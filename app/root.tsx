@@ -27,7 +27,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: 'preload',
-    href: '/fonts/NotoSerifCJKsc-ExtraLight.otf',
+    href: '/font',
     as: 'font',
     type: 'font/otf',
     crossOrigin: 'anonymous',

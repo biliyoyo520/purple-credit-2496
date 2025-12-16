@@ -3,10 +3,32 @@ import fs from "node:fs";
 import path from "node:path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const filePath = path.join(process.cwd(), "public/fonts/NotoSerifCJKsc-ExtraLight.otf");
+  const possiblePaths = [
+    path.join(process.cwd(), "public/fonts/NotoSerifCJKsc-ExtraLight.otf"),
+    path.join(process.cwd(), "build/client/fonts/NotoSerifCJKsc-ExtraLight.otf"),
+    path.join(process.cwd(), "client/fonts/NotoSerifCJKsc-ExtraLight.otf"),
+    path.resolve(process.cwd(), "../public/fonts/NotoSerifCJKsc-ExtraLight.otf"),
+  ];
+
+  let filePath: string | undefined;
+  let stats: fs.Stats | undefined;
+
+  for (const p of possiblePaths) {
+    try {
+      stats = await fs.promises.stat(p);
+      filePath = p;
+      break;
+    } catch {
+      continue;
+    }
+  }
+
+  if (!filePath || !stats) {
+    console.error("Font file not found. Searched in:", possiblePaths);
+    return new Response("Font not found", { status: 404 });
+  }
   
   try {
-    const stats = await fs.promises.stat(filePath);
     const data = await fs.promises.readFile(filePath);
     
     return new Response(data, {
