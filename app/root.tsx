@@ -25,6 +25,13 @@ export const links: Route.LinksFunction = () => [
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap',
   },
+  {
+    rel: 'preload',
+    href: '/fonts/NotoSerifCJKsc-ExtraLight.otf',
+    as: 'font',
+    type: 'font/otf',
+    crossOrigin: 'anonymous',
+  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
